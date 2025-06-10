@@ -3,7 +3,18 @@
 import { useRef, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle, // 👈 añadido para accesibilidad
+} from "@/components/ui/sheet"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
 import { Search, Menu, Plus, X } from "lucide-react"
 import Sidebar from "./sidebar"
 import CaseFileForm from "../forms/case-file-form"
@@ -33,7 +44,6 @@ export default function Navigation({
   const [showOtrosForm, setShowOtrosForm] = useState(false)
   const [editingItem, setEditingItem] = useState<any>(null)
 
-  // Handle click outside search on mobile
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -77,11 +87,12 @@ export default function Navigation({
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0 w-[280px]">
+                <SheetTitle className="sr-only">Menú lateral</SheetTitle>
                 <Sidebar isMobile={true} />
               </SheetContent>
             </Sheet>
 
-            <div className="font-semibold text-base">Sistema Legal</div>
+            <div className="font-semibold text-base">Administracion de Expedientes</div>
 
             <div className="flex items-center gap-2">
               {isSearchExpanded ? (
@@ -112,14 +123,30 @@ export default function Navigation({
                   >
                     <Search className="h-5 w-5" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-blue-800 h-10 w-10"
-                    onClick={() => setShowCaseFileForm(true)}
-                  >
-                    <Plus className="h-5 w-5" />
-                  </Button>
+
+                  {/* Dropdown + button for mobile add actions */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-white hover:bg-blue-800 h-10 w-10"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => setShowCaseFileForm(true)}>
+                        Agregar Expediente
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setShowClientForm(true)}>
+                        Agregar Cliente
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setShowOtrosForm(true)}>
+                        Agregar Otro
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
               )}
             </div>
