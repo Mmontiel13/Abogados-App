@@ -108,7 +108,7 @@ export default function OtrosCard({ item, onClick }: OtrosCardProps) {
             </div>
           )}
 
-          <div className="flex gap-2 pt-2">
+          {/* <div className="flex gap-2 pt-2">
             <Button
               variant="outline"
               size="sm"
@@ -132,7 +132,7 @@ export default function OtrosCard({ item, onClick }: OtrosCardProps) {
             >
               <Download className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>

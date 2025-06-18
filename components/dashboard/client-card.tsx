@@ -84,7 +84,7 @@ export default function ClientCard({ client, onClick }: ClientCardProps) {
             <div className="text-gray-700">{client.caseCount} casos activos</div>
           </div>
 
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             className="w-full mt-2 text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 h-7 sm:h-8 text-xs sm:text-sm"
@@ -95,7 +95,7 @@ export default function ClientCard({ client, onClick }: ClientCardProps) {
           >
             Ver Perfil
             <ChevronRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
-          </Button>
+          </Button> */}
         </div>
       </CardContent>
     </Card>

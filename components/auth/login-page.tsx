@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation" // Comentado para evitar el error de compilación
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,18 +12,43 @@ import { Eye, EyeOff } from "lucide-react"
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [email, setEmail] = useState("") // Estado para el email
+  const [password, setPassword] = useState("") // Estado para la contraseña
+  const [errorMessage, setErrorMessage] = useState("") // Estado para mensajes de error
+  const router = useRouter() // Si estás usando Next.js en tu proyecto local, puedes descomentar esto.
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
+    setErrorMessage("") // Limpiar cualquier mensaje de error previo
 
-    // Simulate authentication
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch("http://localhost:8000/login", { // Ajusta la URL de tu API
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
 
-    // Redirect to dashboard on successful login
-    router.push("/dashboard")
-    setIsLoading(false)
+      const data = await response.json()
+
+      if (response.ok) {
+        // Login exitoso
+        console.log("Inicio de sesión exitoso:", data.user)
+        // alert("Inicio de sesión exitoso. Redirigiendo al dashboard (simulado).") // Para demostración si no usas Next.js router
+        // Si estás en un entorno Next.js real, puedes descomentar y usar router.push("/dashboard")
+        router.push("/dashboard")
+      } else {
+        // Error de login (credenciales inválidas, etc.)
+        setErrorMessage(data.error || "Error al iniciar sesión. Inténtalo de nuevo.")
+      }
+    } catch (error) {
+      console.error("Error en la solicitud de login:", error)
+      setErrorMessage("No se pudo conectar con el servidor. Inténtalo de nuevo más tarde.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -67,6 +92,8 @@ export default function LoginPage() {
                     required
                     className="h-11"
                     disabled={isLoading}
+                    value={email} // <-- AGREGADO
+                    onChange={(e) => setEmail(e.target.value)} // <-- AGREGADO
                   />
                 </div>
 
@@ -75,12 +102,6 @@ export default function LoginPage() {
                     <Label htmlFor="password" className="text-sm font-medium">
                       Contraseña
                     </Label>
-                    {/* <button
-                      type="button"
-                      className="text-sm text-primary hover:underline focus:outline-none focus:underline"
-                    >
-                      ¿Olvidaste tu contraseña?
-                    </button> */}
                   </div>
                   <div className="relative">
                     <Input
@@ -90,6 +111,8 @@ export default function LoginPage() {
                       required
                       className="h-11 pr-10"
                       disabled={isLoading}
+                      value={password} // <-- AGREGADO
+                      onChange={(e) => setPassword(e.target.value)} // <-- AGREGADO
                     />
                     <button
                       type="button"
@@ -116,6 +139,12 @@ export default function LoginPage() {
                   </Label>
                 </div>
 
+                {errorMessage && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span className="block sm:inline">{errorMessage}</span>
+                  </div>
+                )}
+
                 <Button type="submit" className="w-full h-11 text-base font-medium" disabled={isLoading}>
                   {isLoading ? (
                     <>
@@ -140,14 +169,6 @@ export default function LoginPage() {
               <div className="text-center text-sm text-muted-foreground py-2 px-4 border rounded bg-gray-100">
                 El registro de usuarios está gestionado por el administrador. Si necesitas acceso, por favor contacta al despacho.
               </div>
-
-
-              {/* <p className="text-center text-sm text-muted-foreground">
-                ¿Necesitas ayuda?{" "}
-                <button className="font-medium text-primary hover:underline focus:outline-none focus:underline">
-                  Contacta soporte
-                </button>
-              </p> */}
             </CardContent>
           </Card>
         </div>

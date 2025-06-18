@@ -55,7 +55,7 @@ export default function ClientForm({ onClose, onSubmit, initialData }: ClientFor
     e.preventDefault()
     onSubmit({
       ...formData,
-      dateAdded: date,
+      dateAdded: date ? date.toISOString() : null,
     })
     setIsFormOpen(false)
   }
