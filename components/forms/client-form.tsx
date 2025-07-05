@@ -17,8 +17,16 @@ import { useFormContext } from "./form-provider"
 interface ClientFormProps {
   onClose: () => void
   onSubmit: (data: any) => void
-  initialData?: any
+  initialData?: { // Interfaz simplificada para initialData
+    id?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    dateAdded?: string;
+  }
 }
+
+
 
 export default function ClientForm({ onClose, onSubmit, initialData }: ClientFormProps) {
   const { setIsFormOpen } = useFormContext()
@@ -31,34 +39,86 @@ export default function ClientForm({ onClose, onSubmit, initialData }: ClientFor
     phone: initialData?.phone || "",
   })
 
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+
   useEffect(() => {
-    setIsFormOpen(true)
+    // setIsFormOpen(true) // Comentado para Canvas
 
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose()
-        setIsFormOpen(false)
+        // setIsFormOpen(false) // Comentado para Canvas
       }
     }
     document.addEventListener("keydown", handleEscape)
     return () => {
       document.removeEventListener("keydown", handleEscape)
-      setIsFormOpen(false)
+      // setIsFormOpen(false) // Comentado para Canvas
     }
-  }, [onClose, setIsFormOpen])
+  }, [onClose]) // Dependencias ajustadas
+
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit({
-      ...formData,
-      dateAdded: date ? date.toISOString() : null,
-    })
-    setIsFormOpen(false)
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitError(null);
+    setSuccessMessage(null);
+
+    const isEditing = !!initialData;
+    const url = isEditing ? `http://localhost:8000/cliente/${initialData.id}` : "http://localhost:8000/cliente";
+    const method = "POST"; // Siempre POST para enviar FormData con _method=PUT
+
+    // Validaciones básicas de los campos simplificados
+    if (!formData.name || !formData.email || !formData.phone || !date) {
+      setSubmitError("Por favor, completa todos los campos obligatorios (Nombre, Correo, Teléfono, Fecha).");
+      setSubmitting(false);
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append('name', formData.name);
+    payload.append('email', formData.email);
+    payload.append('phone', formData.phone);
+    payload.append('dateAdded', format(date, "yyyy-MM-dd")); // Formato consistente con el backend
+
+    // Asegurarse de enviar el ID para la edición si está presente
+    if (isEditing && initialData.id) {
+      // payload.append('id', initialData.id); // No se envía el ID en el payload, se usa en la URL
+    }
+
+    if (isEditing) {
+      payload.append("_method", "PUT"); // Simula el método PUT para la actualización
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: method,
+        body: payload,
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(responseData.message || "Operación exitosa.");
+        onSubmit(responseData); // Llama al callback del padre
+        // onClose(); // Cierra el formulario aquí después de un éxito si el padre no lo maneja
+      } else {
+        setSubmitError(responseData.error || `Error al procesar la solicitud: ${response.statusText}`);
+      }
+    } catch (error: any) {
+      console.error("Error submitting form:", error);
+      setSubmitError("No se pudo conectar con el servidor. Inténtalo de nuevo más tarde.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div
@@ -77,7 +137,20 @@ export default function ClientForm({ onClose, onSubmit, initialData }: ClientFor
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+              {initialData?.id && (
+                <div className="space-y-2">
+                  <Label htmlFor="clientId">ID Cliente</Label>
+                  <Input
+                    id="clientId"
+                    value={initialData.id}
+                    disabled
+                    readOnly
+                    className="bg-gray-100 cursor-not-allowed"
+                  />
+                </div>
+              )}
+
               {/* Nombre del cliente */}
               <div className="space-y-2">
                 <Label htmlFor="name">Nombre del cliente *</Label>
@@ -135,23 +208,46 @@ export default function ClientForm({ onClose, onSubmit, initialData }: ClientFor
               </div>
             </div>
 
+            {/* Mensajes de feedback */}
+            {submitError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center">
+                {submitError}
+              </div>
+            )}
+            {successMessage && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative text-center">
+                {successMessage}
+              </div>
+            )}
+
             {/* Buttons */}
             <div className="flex justify-center gap-4 pt-4">
               <Button
                 type="submit"
-                className="bg-gray-200 hover:bg-gray-300 text-black px-8 flex items-center justify-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 flex items-center justify-center gap-2"
+                disabled={isSubmitting}
               >
-                <Save className="h-4 w-4" />
-                Guardar
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    {initialData ? "Actualizar" : "Guardar"}
+                  </>
+                )}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => {
                   onClose()
-                  setIsFormOpen(false)
+                  setIsFormOpen(false) // Comentado para Canvas
                 }}
                 className="bg-gray-800 text-white hover:bg-gray-700 px-8 flex items-center justify-center gap-2"
+                disabled={isSubmitting}
               >
                 <X className="h-4 w-4" />
                 Cancelar

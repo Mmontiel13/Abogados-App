@@ -3,16 +3,23 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, FileText, Download, Eye } from "lucide-react"
+import { Calendar, FileText } from "lucide-react" // Eliminado Download, Eye ya que no se usan aquí
 
 interface OtrosItem {
   id: string
   title: string
-  dateAdded: string
+  dateAdded: string // Asegurarse de que el formato sea compatible con Date
   type: string
   description: string
   author?: string
-  tags?: string[]
+  tags?: string[] // Asegurarse de que sea un array de strings
+  source?: string;
+  jurisdiction?: string;
+  court?: string;
+  caseNumber?: string;
+  year?: string;
+  notes?: string;
+  googleDriveFolderId?: string;
 }
 
 interface OtrosCardProps {
@@ -24,20 +31,6 @@ export default function OtrosCard({ item, onClick }: OtrosCardProps) {
   // Function to get type badge color
   const getTypeColor = (type: string) => {
     switch (type.toLowerCase()) {
-      case "formato":
-        return "bg-blue-100 text-blue-800 border-blue-200"
-      case "jurisprudencia":
-        return "bg-purple-100 text-purple-800 border-purple-200"
-      case "documento":
-        return "bg-green-100 text-green-800 border-green-200"
-      case "plantilla":
-        return "bg-amber-100 text-amber-800 border-amber-200"
-      case "tesis":
-        return "bg-indigo-100 text-indigo-800 border-indigo-200"
-      case "criterio":
-        return "bg-pink-100 text-pink-800 border-pink-200"
-      case "manual":
-        return "bg-gray-100 text-gray-800 border-gray-200"
       default:
         return "bg-gray-100 text-gray-800 border-gray-200"
     }
@@ -107,32 +100,6 @@ export default function OtrosCard({ item, onClick }: OtrosCardProps) {
               </div>
             </div>
           )}
-
-          {/* <div className="flex gap-2 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 h-7 sm:h-8 text-xs sm:text-sm"
-              onClick={(e) => {
-                e.stopPropagation()
-                onClick?.()
-              }}
-            >
-              <Eye className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-              Ver Detalles
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 h-7 sm:h-8 px-2"
-              onClick={(e) => {
-                e.stopPropagation()
-                // Handle download action
-              }}
-            >
-              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
-            </Button>
-          </div> */}
         </div>
       </CardContent>
     </Card>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import Sidebar from "./sidebar"
 import Navigation from "./navigation"
@@ -9,102 +9,34 @@ import ClientCard from "./client-card"
 import ClientDetail from "../details/client-detail"
 import ClientForm from "../forms/client-form"
 import { FormProvider } from "../forms/form-provider"
+import CaseFileDetail from "../details/case-file-detail"
 
-// Sample data for clients
-const clients = [
-  {
-    id: "CLI-001",
-    name: "María González Pérez",
-    email: "maria.gonzalez@email.com",
-    phone: "+52 123 456 7890",
-    dateAdded: "2023-11-15",
-    status: "Activo",
-    caseCount: 3,
-    type: "Persona Física",
-    address: "Av. Insurgentes Sur 1234, Col. Del Valle, CDMX",
-    rfc: "GOPM850315ABC",
-    curp: "GOPM850315MDFNRL09",
-    emergencyContact: "Juan González",
-    emergencyPhone: "+52 123 456 7899",
-    notes: "Cliente frecuente con múltiples casos familiares. Prefiere comunicación por correo electrónico.",
-  },
-  {
-    id: "CLI-002",
-    name: "Carlos Rodríguez López",
-    email: "carlos.rodriguez@email.com",
-    phone: "+52 123 456 7891",
-    dateAdded: "2023-11-10",
-    status: "Activo",
-    caseCount: 1,
-    type: "Persona Física",
-    address: "Calle Reforma 567, Col. Centro, CDMX",
-    rfc: "ROLC800220DEF",
-    curp: "ROLC800220HDFNRL05",
-  },
-  {
-    id: "CLI-003",
-    name: "Empresa ABC S.A. de C.V.",
-    email: "contacto@empresaabc.com",
-    phone: "+52 123 456 7892",
-    dateAdded: "2023-11-08",
-    status: "Activo",
-    caseCount: 5,
-    type: "Persona Moral",
-    address: "Av. Paseo de la Reforma 123, Col. Polanco, CDMX",
-    rfc: "EAB950101GHI",
-    company: "Empresa ABC S.A. de C.V.",
-    position: "Representante Legal",
-  },
-  {
-    id: "CLI-004",
-    name: "Ana Martínez Silva",
-    email: "ana.martinez@email.com",
-    phone: "+52 123 456 7893",
-    dateAdded: "2023-11-05",
-    status: "Inactivo",
-    caseCount: 0,
-    type: "Persona Física",
-    address: "Calle Juárez 890, Col. Roma Norte, CDMX",
-    rfc: "MASA750510JKL",
-    curp: "MASA750510MDFNRL02",
-  },
-  {
-    id: "CLI-005",
-    name: "Juan López García",
-    email: "juan.lopez@email.com",
-    phone: "+52 123 456 7894",
-    dateAdded: "2023-11-03",
-    status: "Pendiente",
-    caseCount: 2,
-    type: "Persona Física",
-    address: "Av. Universidad 456, Col. Narvarte, CDMX",
-    rfc: "LOGJ900815MNO",
-    curp: "LOGJ900815HDFNRL08",
-  },
-  {
-    id: "CLI-006",
-    name: "Constructora XYZ S.A.",
-    email: "info@constructoraxyz.com",
-    phone: "+52 123 456 7895",
-    dateAdded: "2023-11-01",
-    status: "Activo",
-    caseCount: 4,
-    type: "Persona Moral",
-    address: "Blvd. Manuel Ávila Camacho 789, Col. Lomas de Chapultepec, CDMX",
-    rfc: "CXY980301PQR",
-    company: "Constructora XYZ S.A.",
-    position: "Director General",
-  },
-]
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  dateAdded: string; // Formato YYYY-MM-DD
+  activo?: boolean; // Para gestionar el estado activo/inactivo desde Firebase
+}
 
-const categories = [
-  { id: "todos", label: "Todos los Clientes", active: true },
-  { id: "fisica", label: "Persona Física" },
-  { id: "moral", label: "Persona Moral" },
-  { id: "activos", label: "Activos" },
-  { id: "inactivos", label: "Inactivos" },
-  { id: "pendientes", label: "Pendientes" },
-]
+interface CaseFile {
+  id: string;
+  title: string;
+  date: string;
+  clientId: string;
+  place: string;
+  subject: string;
+  court: string;
+  description?: string;
+  documents?: string[];
+  history?: Array<{
+    id: string;
+    date: string;
+    action: string;
+    user: string;
+  }>;
+}
 
 export default function ClientsDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -115,27 +47,75 @@ export default function ClientsDashboard() {
   const [showClientForm, setShowClientForm] = useState(false)
   const [editingClient, setEditingClient] = useState<any>(null)
 
-  // Filter clients based on search query and category
+  // Estado para almacenar los clientes de la API
+  const [clients, setClients] = useState<Client[]>([])
+  const [loadingClients, setLoadingClients] = useState(true)
+  const [errorClients, setErrorClients] = useState<string | null>(null)
+  const [selectedCaseFile, setSelectedCaseFile] = useState<CaseFile | null>(null);
+  
+  // Definición de categorías ajustadas a los nuevos campos (solo Todos, Activos, Inactivos)
+  const categories = [
+    { id: "todos", label: "Todos los Clientes", active: true },
+    { id: "activos", label: "Activos" },
+    { id: "inactivos", label: "Inactivos" },
+  ]
+  // Función para cargar los clientes desde el backend
+  const fetchClients = async () => {
+    setLoadingClients(true)
+    setErrorClients(null)
+    try {
+      const response = await fetch("http://localhost:8000/clientes") // Tu endpoint para listar clientes
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data: Client[] = await response.json()
+      console.log("Clientes recibidos del backend:", data)
+      setClients(data) // Actualiza el estado con los datos reales de la API
+    } catch (error: any) {
+      console.error("Error al cargar clientes:", error)
+      setErrorClients(`Error al cargar los clientes: ${error.message}.`)
+    } finally {
+      setLoadingClients(false)
+    }
+  }
+
+  // Función para cargar un expediente específico por su ID (para abrir el detalle)
+  const fetchCaseFileById = async (caseId: string) => {
+    try {
+      const response = await fetch(`http://localhost:8000/case/${caseId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: CaseFile = await response.json();
+      setSelectedCaseFile(data); // Establece el expediente para mostrar su detalle
+      setSelectedClient(null); // Cierra el detalle del cliente si estaba abierto
+    } catch (error: any) {
+      console.error(`Error al cargar el expediente ${caseId}:`, error);
+      // Aquí podrías mostrar un mensaje de error al usuario
+    }
+  };
+
+  // Cargar clientes al montar el componente
+  useEffect(() => {
+    fetchClients()
+  }, []) // Se ejecuta solo una vez al montar
+
+  // Filtrar clientes en base a la búsqueda y categoría
   const filteredClients = clients.filter((client) => {
     const matchesSearch =
       client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       client.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.id.includes(searchQuery)
+      client.phone.includes(searchQuery) || // Búsqueda por teléfono
+      client.id.toLowerCase().includes(searchQuery.toLowerCase()) 
 
     const matchesCategory = (() => {
       switch (activeCategory) {
         case "todos":
           return true
-        case "fisica":
-          return client.type === "Persona Física"
-        case "moral":
-          return client.type === "Persona Moral"
         case "activos":
-          return client.status === "Activo"
+          return client.activo === true
         case "inactivos":
-          return client.status === "Inactivo"
-        case "pendientes":
-          return client.status === "Pendiente"
+          return client.activo === false
         default:
           return true
       }
@@ -144,21 +124,33 @@ export default function ClientsDashboard() {
     return matchesSearch && matchesCategory
   })
 
-  const handleClientClick = (client: any) => {
+  const handleClientClick = (client: Client) => {
     setSelectedClient(client)
   }
 
-  const handleEditClient = (client: any) => {
+  const handleEditClient = (client: Client) => {
     setEditingClient(client)
     setShowClientForm(true)
-    setSelectedClient(null)
+    setSelectedClient(null) // Cierra el detalle si estaba abierto
   }
 
-  const handleClientSubmit = (data: any) => {
-    console.log("Client form submitted:", data)
-    setShowClientForm(false)
-    setEditingClient(null)
+  // Callback para cuando el formulario de cliente se envía con éxito (creación o edición)
+  const handleClientFormSuccess = () => {
+    setShowClientForm(false) // Cierra el modal del formulario
+    setEditingClient(null) // Limpia el cliente en edición
+    setSelectedClient(null); // Asegúrate de cerrar cualquier detalle abierto
+    fetchClients(); // Vuelve a cargar los clientes para actualizar el grid
   }
+
+  const handleCreateClient = () => {
+    setEditingClient(null); // Asegura que es un formulario nuevo
+    setShowClientForm(true);
+  };
+  
+  // Función para cerrar el detalle del expediente
+  const handleCloseCaseFileDetail = () => {
+    setSelectedCaseFile(null);
+  };
 
   return (
     <FormProvider>
@@ -170,7 +162,6 @@ export default function ClientsDashboard() {
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 md:ml-64">
-          {/* Navigation */}
           <Navigation
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -179,28 +170,31 @@ export default function ClientsDashboard() {
             isSidebarOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
           />
-
-          {/* Category Tabs */}
-          <CategoryTabs categories={categories} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-
+        
           {/* Clients Grid */}
           <div className="flex-1 p-3 sm:p-4 md:p-6">
+            {loadingClients && <p className="text-center text-gray-600">Cargando clientes...</p>}
+            {errorClients && <p className="text-center text-red-500">{errorClients}</p>}
+            {!loadingClients && !errorClients && filteredClients.length === 0 && (
+              <p className="text-center text-gray-600">No se encontraron clientes.</p>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
               {filteredClients.map((client) => (
                 <ClientCard key={client.id} client={client} onClick={() => handleClientClick(client)} />
               ))}
-            </div>
-
-            {/* Show More Button */}
-            <div className="text-center mt-6 sm:mt-8">
-              <Button className="bg-blue-600 hover:bg-blue-700 px-6 sm:px-8">Mostrar todo</Button>
             </div>
           </div>
         </div>
 
         {/* Client Detail Modal */}
         {selectedClient && (
-          <ClientDetail client={selectedClient} onClose={() => setSelectedClient(null)} onEdit={handleEditClient} />
+          <ClientDetail
+            client={selectedClient}
+            onClose={() => setSelectedClient(null)}
+            onEdit={handleEditClient}
+            onViewCaseDetail={fetchCaseFileById} // Pasa la función para abrir el detalle del expediente
+          />
         )}
 
         {/* Client Form Modal */}
@@ -210,8 +204,16 @@ export default function ClientsDashboard() {
               setShowClientForm(false)
               setEditingClient(null)
             }}
-            onSubmit={handleClientSubmit}
+            onSubmit={handleClientFormSuccess}
             initialData={editingClient}
+          />
+        )}
+
+        {/* Case File Detail Modal (para mostrar el detalle de un expediente desde el detalle del cliente) */}
+        {selectedCaseFile && (
+          <CaseFileDetail
+            caseFile={selectedCaseFile}
+            onClose={handleCloseCaseFileDetail}
           />
         )}
       </div>

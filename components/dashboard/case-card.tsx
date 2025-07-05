@@ -7,9 +7,9 @@ interface CaseFile {
   id: string
   title: string
   date: string
-  client: string
-  status: string
-  matter: string
+  clientId: string
+  place: string
+  subject: string
   court: string
 }
 
@@ -19,17 +19,9 @@ interface CaseCardProps {
 }
 
 export default function CaseCard({ caseFile, onClick }: CaseCardProps) {
-  // Function to get status badge color
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "abierto":
-        return "bg-green-100 text-green-800 border-green-200"
-      case "en proceso":
-        return "bg-blue-100 text-blue-800 border-blue-200"
-      case "revisión":
-        return "bg-amber-100 text-amber-800 border-amber-200"
-      case "cerrado":
-        return "bg-gray-100 text-gray-800 border-gray-200"
+  // Function to get subject badge color
+  const getSubjectColor = (subject: string) => {
+    switch (subject) {
       default:
         return "bg-gray-100 text-gray-800 border-gray-200"
     }
@@ -59,19 +51,17 @@ export default function CaseCard({ caseFile, onClick }: CaseCardProps) {
 
           <div>
             <div className="text-xs text-gray-500 mb-1">Cliente asociado</div>
-            <div className="font-medium text-gray-900 line-clamp-1">{caseFile.client}</div>
+            <div className="font-medium text-gray-900 line-clamp-1">{caseFile.clientId}</div>
           </div>
 
-          <div className="flex items-center justify-between gap-2">
-            <Badge className={`font-normal text-xs ${getStatusColor(caseFile.status)}`}>
-              <Clock className="mr-1 h-2.5 w-2.5 sm:h-3 sm:w-3" />
-              {caseFile.status}
-            </Badge>
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Estado</div>
+            <div className="font-medium text-gray-900 line-clamp-1">{caseFile.place}</div>
           </div>
 
           <div className="pt-1">
             <div className="text-xs text-gray-500 mb-1">Materia</div>
-            <div className="text-gray-700 line-clamp-1">{caseFile.matter}</div>
+            <Badge className={`font-normal text-xs ${getSubjectColor(caseFile.subject)}`}>{caseFile.subject}</Badge>
           </div>
 
           <div>

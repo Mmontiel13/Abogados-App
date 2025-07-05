@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import Sidebar from "./sidebar"
 import Navigation from "./navigation"
@@ -9,101 +9,6 @@ import CaseCard from "./case-card"
 import CaseFileDetail from "../details/case-file-detail"
 import { FormProvider } from "../forms/form-provider"
 import CaseFileForm from "../forms/case-file-form"
-
-// Sample data for case files
-const caseFiles = [
-  {
-    id: "2023/001",
-    title: "Divorcio Contencioso",
-    date: "2023-11-15",
-    client: "María González Pérez",
-    status: "En Proceso",
-    matter: "Derecho Familiar",
-    court: "Juzgado 1° Familiar",
-    category: "Familiar",
-    description:
-      "Proceso de divorcio contencioso iniciado por la Sra. María González contra su cónyuge. Incluye disputa por custodia de menores y división de bienes matrimoniales.",
-  },
-  {
-    id: "2023/002",
-    title: "Demanda Laboral",
-    date: "2023-11-10",
-    client: "Carlos Rodríguez López",
-    status: "Abierto",
-    matter: "Derecho Laboral",
-    court: "Juzgado 2° Laboral",
-    category: "Laboral",
-  },
-  {
-    id: "2023/003",
-    title: "Contrato Mercantil",
-    date: "2023-11-08",
-    client: "Ana Martínez Silva",
-    status: "Revisión",
-    matter: "Derecho Mercantil",
-    court: "Juzgado Civil",
-    category: "Mercantil",
-  },
-  {
-    id: "2023/004",
-    title: "Demanda Civil",
-    date: "2023-11-05",
-    client: "Juan López García",
-    status: "Abierto",
-    matter: "Derecho Civil",
-    court: "Juzgado 3° Civil",
-    category: "Civil",
-  },
-  {
-    id: "2023/005",
-    title: "Proceso Penal",
-    date: "2023-11-03",
-    client: "Laura Sánchez Ruiz",
-    status: "En Proceso",
-    matter: "Derecho Penal",
-    court: "Juzgado Penal",
-    category: "Penal",
-  },
-  {
-    id: "2023/006",
-    title: "Custodia Menor",
-    date: "2023-11-01",
-    client: "Roberto Fernández",
-    status: "Cerrado",
-    matter: "Derecho Familiar",
-    court: "Juzgado 2° Familiar",
-    category: "Familiar",
-  },
-  {
-    id: "2023/007",
-    title: "Despido Injustificado",
-    date: "2023-10-28",
-    client: "Patricia Díaz Moreno",
-    status: "En Proceso",
-    matter: "Derecho Laboral",
-    court: "Juzgado 1° Laboral",
-    category: "Laboral",
-  },
-  {
-    id: "2023/008",
-    title: "Constitución Empresa",
-    date: "2023-10-25",
-    client: "Empresa ABC S.A.",
-    status: "Abierto",
-    matter: "Derecho Mercantil",
-    court: "Registro Mercantil",
-    category: "Mercantil",
-  },
-]
-
-const categories = [
-  { id: "recientes", label: "Expedientes Recientes", active: true },
-  { id: "familiar", label: "Familiar" },
-  { id: "civil", label: "Civil" },
-  { id: "penal", label: "Penal" },
-  { id: "laboral", label: "Laboral" },
-  { id: "mercantil", label: "Mercantil" },
-]
 
 export default function LegalDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -114,15 +19,59 @@ export default function LegalDashboard() {
   const [showCaseFileForm, setShowCaseFileForm] = useState(false)
   const [editingCase, setEditingCase] = useState<any>(null)
 
+  const [caseFiles, setCaseFiles] = useState<any[]>([])
+  const [loadingCases, setLoadingCases] = useState(true)
+  const [errorCases, setErrorCases] = useState<string | null>(null)
+
+  const categories = [
+    { id: "recientes", label: "Expedientes Recientes", active: true },
+    { id: "familiar", label: "Familiar" },
+    { id: "civil", label: "Civil" },
+    { id: "penal", label: "Penal" },
+    { id: "laboral", label: "Laboral" },
+    { id: "mercantil", label: "Mercantil" },
+  ]
+
+  const fetchCaseFiles = async () => {
+    setLoadingCases(true)
+    setErrorCases(null)
+    try {
+      const response = await fetch("http://localhost:8000/cases") // Endpoint para obtener todos los expedientes
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      // console.log("Datos de expedientes recibidos:", data); // Para depuración
+      setCaseFiles(data) // Actualiza el estado con los datos reales
+    } catch (error: any) {
+      console.error("Error fetching case files:", error)
+      setErrorCases(`Error al cargar los expedientes: ${error.message}. Por favor, inténtalo de nuevo más tarde.`)
+    } finally {
+      setLoadingCases(false)
+    }
+  }
+
+  // useEffect para cargar los expedientes cuando el componente se monta
+  useEffect(() => {
+    fetchCaseFiles()
+  }, []) // El array vacío asegura que se ejecute solo una vez al montar el componente
+
   // Filter case files based on search query and category
   const filteredCaseFiles = caseFiles.filter((caseFile) => {
+    // Asegurarse de que los campos existan antes de llamar a toLowerCase()
     const matchesSearch =
-      caseFile.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      caseFile.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      caseFile.id.includes(searchQuery)
+      (caseFile.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        caseFile.clientId?.toLowerCase().includes(searchQuery.toLowerCase()) || // Ahora busca por clientId
+        caseFile.id?.includes(searchQuery) ||
+        caseFile.place?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+
+    // Se asume que el backend podría enviar 'category' o 'subject' (materia)
+    // Ajusta según el campo real que tu backend use para la clasificación.
+    const caseCategoryOrMatter = caseFile.category?.toLowerCase() || caseFile.subject?.toLowerCase();
 
     const matchesCategory =
-      activeCategory === "recientes" || caseFile.category.toLowerCase() === activeCategory.toLowerCase()
+      activeCategory === "recientes" || caseCategoryOrMatter === activeCategory.toLowerCase();
 
     return matchesSearch && matchesCategory
   })
@@ -134,8 +83,22 @@ export default function LegalDashboard() {
   const handleEditCase = (caseFile: any) => {
     setEditingCase(caseFile)
     setShowCaseFileForm(true)
-    setSelectedCase(null)
+    setSelectedCase(null) // Cierra el detalle si estaba abierto
   }
+
+  // Función para recargar los expedientes después de una operación (crear, editar, eliminar)
+  const handleFormSuccess = () => {
+    setShowCaseFileForm(false)
+    setEditingCase(null)
+    setSelectedCase(null); // Asegúrate de cerrar cualquier detalle abierto
+    fetchCaseFiles(); // Vuelve a cargar los datos para reflejar los cambios
+  };
+
+  // Puedes añadir funciones para crear/eliminar si los botones existen en Navigation o CaseFileDetail
+  const handleCreateCase = () => {
+    setEditingCase(null); // Asegura que es un nuevo formulario
+    setShowCaseFileForm(true);
+  };
 
   return (
     <FormProvider>
@@ -169,9 +132,9 @@ export default function LegalDashboard() {
             </div>
 
             {/* Show More Button */}
-            <div className="text-center mt-6 sm:mt-8">
+            {/* <div className="text-center mt-6 sm:mt-8">
               <Button className="bg-blue-600 hover:bg-blue-700 px-6 sm:px-8">Mostrar todo</Button>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -186,11 +149,7 @@ export default function LegalDashboard() {
               setShowCaseFileForm(false)
               setEditingCase(null)
             }}
-            onSubmit={(data) => {
-              console.log("Case file form submitted:", data)
-              setShowCaseFileForm(false)
-              setEditingCase(null)
-            }}
+            onSubmit={handleFormSuccess} // CAMBIO AQUÍ
             initialData={editingCase}
           />
         )}

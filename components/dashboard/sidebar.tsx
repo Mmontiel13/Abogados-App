@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -21,33 +22,15 @@ import {
   FolderOpen,
 } from "lucide-react"
 
-// Team members data
-const teamMembers = [
-  {
-    id: 1,
-    name: "Israel Calva Corro",
-    role: "Abogado Principal",
-    avatar: "IC",
-    phone: "+52 123 456 7890",
-    email: "israel.calva@bufete.com",
-  },
-  {
-    id: 2,
-    name: "Ana Martínez",
-    role: "Abogada Asociada",
-    avatar: "AM",
-    phone: "+52 123 456 7891",
-    email: "ana.martinez@bufete.com",
-  },
-  {
-    id: 3,
-    name: "Carlos Rodríguez",
-    role: "Abogado Junior",
-    avatar: "CR",
-    phone: "+52 123 456 7892",
-    email: "carlos.rodriguez@bufete.com",
-  },
-]
+// Definir una interfaz para el usuario (similar a cómo viene de tu backend)
+interface User {
+  id: string;
+  name: string;
+  role: string;
+  avatar?: string; // Opcional, si el backend no lo envía
+  phone?: string;
+  email: string;
+}
 
 interface SidebarProps {
   isMobile?: boolean
@@ -57,9 +40,55 @@ interface SidebarProps {
 export default function Sidebar({ isMobile = false, className = "" }: SidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null)
+  const [teamMembers, setTeamMembers] = useState<User[]>([])
+  const [loadingUsers, setLoadingUsers] = useState(true)
+  const [errorUsers, setErrorUsers] = useState<string | null>(null)
+
+  // Función para obtener la inicial del avatar
+  const getAvatarFallback = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  }
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('loggedInUser');
+    if (storedUser) {
+      setLoggedInUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoadingUsers(true)
+    setErrorUsers(null)
+    try {
+      const response = await fetch("http://localhost:8000/usuarios") // Endpoint para obtener todos los usuarios
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      // console.log("Datos de usuarios recibidos:", data); // Para depuración
+
+      // Filtrar el usuario logueado de la lista del equipo para evitar duplicados
+      const filteredTeamMembers = data.filter((user: User) => user.id !== loggedInUser?.id);
+      setTeamMembers(filteredTeamMembers)
+    } catch (error: any) {
+      console.error("Error fetching users:", error)
+      setErrorUsers(`Error al cargar los usuarios: ${error.message}.`)
+    } finally {
+      setLoadingUsers(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers();
+  }, [loggedInUser]);
 
   const handleLogout = () => {
-    router.push("/login")
+    localStorage.removeItem('loggedInUser'); // Elimina el usuario de localStorage
+    // router.push("/login") // Si usas Next.js, descomenta esta línea para la redirección real
+    alert("Cerrando sesión. Redirigiendo a la página de login."); // Mensaje de demostración
+    // Opcional: Recarga la página para asegurar que el estado se resetee
+    window.location.href = '/login'; // O a la ruta de tu login
   }
 
   const navigationItems = [
@@ -95,11 +124,13 @@ export default function Sidebar({ isMobile = false, className = "" }: SidebarPro
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-3 w-full hover:bg-blue-800/50 p-2 rounded-lg transition-all">
               <Avatar className="h-10 w-10 border-2 border-white/20">
-                <AvatarFallback className="bg-blue-700 text-white">IC</AvatarFallback>
+                <AvatarFallback className="bg-blue-700 text-white">
+                  {loggedInUser ? getAvatarFallback(loggedInUser.name) : "U"}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1 text-left">
-                <div className="font-medium">Israel Calva Corro</div>
-                <div className="text-xs text-blue-200">Administrador</div>
+                <div className="font-medium">{loggedInUser?.name || "Cargando..."}</div>
+                <div className="text-xs text-blue-200">{loggedInUser?.role || "Rol Desconocido"}</div>
               </div>
               <ChevronDown className="h-4 w-4 text-blue-300" />
             </button>

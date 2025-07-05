@@ -1,14 +1,13 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CalendarIcon, Save, X, Upload } from "lucide-react"
+import { CalendarIcon, Save, X } from "lucide-react" // Eliminado Upload
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
@@ -41,22 +40,132 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
     notes: initialData?.notes || "",
   })
 
+  // Eliminadas las variables de estado para la subida de archivos
+  // const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  // const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData.title || "",
+        type: initialData.type || "",
+        description: initialData.description || "",
+        author: initialData.author || "",
+        tags: initialData.tags?.join(", ") || "",
+        source: initialData.source || "",
+        jurisdiction: initialData.jurisdiction || "",
+        court: initialData.court || "",
+        caseNumber: initialData.caseNumber || "",
+        year: initialData.year || "",
+        notes: initialData.notes || "",
+      });
+      setDate(initialData.dateAdded ? new Date(initialData.dateAdded) : undefined);
+    } else {
+      setFormData({
+        title: "",
+        type: "",
+        description: "",
+        author: "",
+        tags: "",
+        source: "",
+        jurisdiction: "",
+        court: "",
+        caseNumber: "",
+        year: "",
+        notes: "",
+      });
+      setDate(new Date());
+    }
+  }, [initialData]);
+
+
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit({
-      ...formData,
-      dateAdded: date,
-      tags: formData.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag),
-    })
-    setIsFormOpen(false)
-  }
+  // Eliminadas las funciones de manejo de archivos
+  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files) {
+  //     setSelectedFiles(Array.from(e.target.files));
+  //   } else {
+  //     setSelectedFiles([]);
+  //   }
+  // };
+
+  // const handleRemoveFile = (indexToRemove: number) => {
+  //   setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
+  // };
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitError(null);
+    setSuccessMessage(null);
+
+    const isEditing = !!initialData;
+    const url = isEditing ? `http://localhost:8000/other/${initialData.id}` : "http://localhost:8000/other";
+    const method = "POST"; // Usar PUT para edición directa
+
+    // Validaciones básicas
+    if (!formData.title || !formData.type || !formData.description || !date) {
+      let missingFields = [];
+      if (!formData.title) missingFields.push('Título');
+      if (!formData.type) missingFields.push('Tipo');
+      if (!formData.description) missingFields.push('Descripción');
+      if (!date) missingFields.push('Fecha');
+
+      setSubmitError(`Por favor, completa todos los campos obligatorios: ${missingFields.join(', ')}.`);
+      setSubmitting(false);
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append('title', formData.title);
+    payload.append('type', formData.type);
+    payload.append('description', formData.description);
+    payload.append('author', formData.author);
+    payload.append('tags', formData.tags); // Las tags se envían como string separado por comas
+    payload.append('source', formData.source);
+    payload.append('jurisdiction', formData.jurisdiction);
+    payload.append('court', formData.court);
+    payload.append('caseNumber', formData.caseNumber);
+    payload.append('year', formData.year);
+    payload.append('notes', formData.notes);
+    payload.append('date', format(date!, "yyyy-MM-dd")); // Usar 'date' para el backend
+
+    // No se adjuntan archivos al payload aquí
+    if (isEditing) {
+      payload.append("_method", "PUT");
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: method,
+        body: payload,
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(responseData.message || "Operación exitosa.");
+        onSubmit(responseData); // Notifica al componente padre
+        onClose(); // Cierra el formulario
+      } else {
+        setSubmitError(responseData.error || `Error al procesar la solicitud: ${response.statusText}`);
+      }
+    } catch (error: any) {
+      console.error("Error submitting form:", error);
+      setSubmitError("No se pudo conectar con el servidor. Inténtalo de nuevo más tarde.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     setIsFormOpen(true)
@@ -87,7 +196,7 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[80vh] overflow-y-auto">
         <div className="p-6">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold">{initialData ? "Editar Archivo" : "Formulario Otro Archivo"}</h2>
+            <h2 className="text-2xl font-bold">{initialData ? "Editar Archivo" : "Crear Otro Archivo"}</h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -107,7 +216,7 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
               {/* Tipo */}
               <div className="space-y-2">
                 <Label htmlFor="type">Tipo *</Label>
-                <Select value={formData.type} onValueChange={(value) => handleChange("type", value)}>
+                <Select value={formData.type} onValueChange={(value) => handleChange("type", value)} required>
                   <SelectTrigger id="type" className="w-full">
                     <div className="flex items-center">
                       <span className="mr-2">≡</span>
@@ -156,80 +265,6 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
                 </Popover>
               </div>
 
-              {/* Fuente (para jurisprudencias) */}
-              {(formData.type === "Jurisprudencia" || formData.type === "Tesis" || formData.type === "Criterio") && (
-                <div className="space-y-2">
-                  <Label htmlFor="source">Fuente</Label>
-                  <Select value={formData.source} onValueChange={(value) => handleChange("source", value)}>
-                    <SelectTrigger id="source" className="w-full">
-                      <div className="flex items-center">
-                        <span className="mr-2">⚖️</span>
-                        <SelectValue placeholder="Seleccionar fuente" />
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SCJN">Suprema Corte de Justicia de la Nación</SelectItem>
-                      <SelectItem value="Tribunal Colegiado">Tribunal Colegiado</SelectItem>
-                      <SelectItem value="Tribunal Unitario">Tribunal Unitario</SelectItem>
-                      <SelectItem value="Pleno">Pleno</SelectItem>
-                      <SelectItem value="Primera Sala">Primera Sala</SelectItem>
-                      <SelectItem value="Segunda Sala">Segunda Sala</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Jurisdicción */}
-              {(formData.type === "Jurisprudencia" || formData.type === "Tesis" || formData.type === "Criterio") && (
-                <div className="space-y-2">
-                  <Label htmlFor="jurisdiction">Jurisdicción</Label>
-                  <Input
-                    id="jurisdiction"
-                    placeholder="Federal, Local, etc."
-                    value={formData.jurisdiction}
-                    onChange={(e) => handleChange("jurisdiction", e.target.value)}
-                  />
-                </div>
-              )}
-
-              {/* Tribunal */}
-              {(formData.type === "Jurisprudencia" || formData.type === "Tesis" || formData.type === "Criterio") && (
-                <div className="space-y-2">
-                  <Label htmlFor="court">Tribunal</Label>
-                  <Input
-                    id="court"
-                    placeholder="Nombre del tribunal"
-                    value={formData.court}
-                    onChange={(e) => handleChange("court", e.target.value)}
-                  />
-                </div>
-              )}
-
-              {/* Número de expediente */}
-              {(formData.type === "Jurisprudencia" || formData.type === "Tesis" || formData.type === "Criterio") && (
-                <div className="space-y-2">
-                  <Label htmlFor="caseNumber">Número de expediente</Label>
-                  <Input
-                    id="caseNumber"
-                    placeholder="Número del expediente"
-                    value={formData.caseNumber}
-                    onChange={(e) => handleChange("caseNumber", e.target.value)}
-                  />
-                </div>
-              )}
-
-              {/* Año */}
-              {(formData.type === "Jurisprudencia" || formData.type === "Tesis" || formData.type === "Criterio") && (
-                <div className="space-y-2">
-                  <Label htmlFor="year">Año</Label>
-                  <Input
-                    id="year"
-                    placeholder="2023"
-                    value={formData.year}
-                    onChange={(e) => handleChange("year", e.target.value)}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Descripción */}
@@ -268,8 +303,8 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
               />
             </div>
 
-            {/* Agregar Documentos */}
-            <div className="space-y-2">
+            {/* Eliminado: Sección "Agregar Documentos" */}
+            {/* <div className="space-y-2">
               <Label>Agregar Documentos</Label>
               <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-gray-50">
                 <div className="text-gray-400 mb-2">
@@ -294,16 +329,38 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
                   Seleccionar archivos
                 </Button>
               </div>
-            </div>
+            </div> */}
+
+            {/* Mensajes de feedback */}
+            {submitError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center">
+                {submitError}
+              </div>
+            )}
+            {successMessage && (
+              <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative text-center">
+                {successMessage}
+              </div>
+            )}
 
             {/* Buttons */}
             <div className="flex justify-center gap-4 pt-4">
               <Button
                 type="submit"
-                className="bg-gray-200 hover:bg-gray-300 text-black px-8 flex items-center justify-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 flex items-center justify-center gap-2"
+                disabled={isSubmitting}
               >
-                <Save className="h-4 w-4" />
-                Guardar
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4" />
+                    {initialData ? "Actualizar" : "Guardar"}
+                  </>
+                )}
               </Button>
               <Button
                 type="button"
@@ -313,6 +370,7 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
                   setIsFormOpen(false)
                 }}
                 className="bg-gray-800 text-white hover:bg-gray-700 px-8 flex items-center justify-center gap-2"
+                disabled={isSubmitting}
               >
                 <X className="h-4 w-4" />
                 Cancelar
