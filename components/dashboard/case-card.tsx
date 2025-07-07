@@ -1,7 +1,7 @@
 "use client"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock } from "lucide-react"
+import { Calendar } from "lucide-react"
 
 interface CaseFile {
   id: string

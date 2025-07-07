@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import Sidebar from "./sidebar"
 import Navigation from "./navigation"
 import CategoryTabs from "./category-tabs"

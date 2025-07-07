@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { X, Edit, FileText, Calendar, User, MapPin, Scale, Clock, Eye, Download, FolderOpen } from "lucide-react"
+import { X, Edit, FileText, Calendar, User, Scale, FolderOpen } from "lucide-react"
 import { useFormContext } from "../forms/form-provider"
 import { format } from "date-fns" // Para formatear la fecha
 import { es } from "date-fns/locale" // Para formatear la fecha en español

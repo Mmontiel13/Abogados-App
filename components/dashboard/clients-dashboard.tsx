@@ -1,10 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import Sidebar from "./sidebar"
 import Navigation from "./navigation"
-import CategoryTabs from "./category-tabs"
 import ClientCard from "./client-card"
 import ClientDetail from "../details/client-detail"
 import ClientForm from "../forms/client-form"
@@ -39,14 +37,13 @@ interface CaseFile {
 }
 
 // En OtrosDashboard.tsx o donde hagas la llamada a la API
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 // Luego, en tu fetch:
 // const response = await fetch(`${BACKEND_URL}/others`);
 
 export default function ClientsDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeCategory, setActiveCategory] = useState("todos")
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [selectedClient, setSelectedClient] = useState<any>(null)
@@ -58,13 +55,7 @@ export default function ClientsDashboard() {
   const [loadingClients, setLoadingClients] = useState(true)
   const [errorClients, setErrorClients] = useState<string | null>(null)
   const [selectedCaseFile, setSelectedCaseFile] = useState<CaseFile | null>(null);
-  
-  // Definición de categorías ajustadas a los nuevos campos (solo Todos, Activos, Inactivos)
-  const categories = [
-    { id: "todos", label: "Todos los Clientes", active: true },
-    { id: "activos", label: "Activos" },
-    { id: "inactivos", label: "Inactivos" },
-  ]
+
   // Función para cargar los clientes desde el backend
   const fetchClients = async () => {
     setLoadingClients(true)
@@ -113,21 +104,7 @@ export default function ClientsDashboard() {
       client.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       client.phone.includes(searchQuery) || // Búsqueda por teléfono
       client.id.toLowerCase().includes(searchQuery.toLowerCase()) 
-
-    const matchesCategory = (() => {
-      switch (activeCategory) {
-        case "todos":
-          return true
-        case "activos":
-          return client.activo === true
-        case "inactivos":
-          return client.activo === false
-        default:
-          return true
-      }
-    })()
-
-    return matchesSearch && matchesCategory
+    return matchesSearch
   })
 
   const handleClientClick = (client: Client) => {
@@ -148,11 +125,6 @@ export default function ClientsDashboard() {
     fetchClients(); // Vuelve a cargar los clientes para actualizar el grid
   }
 
-  const handleCreateClient = () => {
-    setEditingClient(null); // Asegura que es un formulario nuevo
-    setShowClientForm(true);
-  };
-  
   // Función para cerrar el detalle del expediente
   const handleCloseCaseFileDetail = () => {
     setSelectedCaseFile(null);

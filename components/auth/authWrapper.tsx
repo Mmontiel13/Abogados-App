@@ -41,7 +41,7 @@ export default function AuthWrapper({ children }: AuthWrapperProps) {
 
     // Dependencias: pathname para re-evaluar si la ruta cambia (ej. de login a dashboard)
     // router: para asegurar que router.push es estable
-  }, [pathname, router]); 
+  }, [pathname, router, publicPaths]); 
 
   if (isLoading) {
     return (

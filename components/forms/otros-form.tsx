@@ -89,7 +89,7 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
   }
 
   // En OtrosDashboard.tsx o donde hagas la llamada a la API
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
   // Luego, en tu fetch:
   // const response = await fetch(`${BACKEND_URL}/others`);
