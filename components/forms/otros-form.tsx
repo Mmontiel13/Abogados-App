@@ -88,19 +88,11 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  // Eliminadas las funciones de manejo de archivos
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     setSelectedFiles(Array.from(e.target.files));
-  //   } else {
-  //     setSelectedFiles([]);
-  //   }
-  // };
+  // En OtrosDashboard.tsx o donde hagas la llamada a la API
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-  // const handleRemoveFile = (indexToRemove: number) => {
-  //   setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
-  // };
-
+  // Luego, en tu fetch:
+  // const response = await fetch(`${BACKEND_URL}/others`);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,7 +101,7 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
     setSuccessMessage(null);
 
     const isEditing = !!initialData;
-    const url = isEditing ? `http://localhost:8000/other/${initialData.id}` : "http://localhost:8000/other";
+    const url = isEditing ? `${BACKEND_URL}/other/${initialData.id}` : `${BACKEND_URL}/other`;
     const method = "POST"; // Usar PUT para edición directa
 
     // Validaciones básicas

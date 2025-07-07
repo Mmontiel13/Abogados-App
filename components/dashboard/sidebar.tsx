@@ -37,6 +37,12 @@ interface SidebarProps {
   className?: string
 }
 
+// En OtrosDashboard.tsx o donde hagas la llamada a la API
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+// Luego, en tu fetch:
+// const response = await fetch(`${BACKEND_URL}/others`);
+
 export default function Sidebar({ isMobile = false, className = "" }: SidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -61,7 +67,7 @@ export default function Sidebar({ isMobile = false, className = "" }: SidebarPro
     setLoadingUsers(true)
     setErrorUsers(null)
     try {
-      const response = await fetch("http://localhost:8000/usuarios") // Endpoint para obtener todos los usuarios
+      const response = await fetch(`${BACKEND_URL}/usuarios`) // Endpoint para obtener todos los usuarios
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }

@@ -10,6 +10,12 @@ import OtrosDetail from "../details/otros-detail"
 import { FormProvider } from "../forms/form-provider"
 import OtrosForm from "../forms/otros-form"
 
+// En OtrosDashboard.tsx o donde hagas la llamada a la API
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+// Luego, en tu fetch:
+// const response = await fetch(`${BACKEND_URL}/others`);
+
 export default function OtrosDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState("todo")
@@ -23,7 +29,8 @@ export default function OtrosDashboard() {
   const [errorOtros, setErrorOtros] = useState<string | null>(null)
 
   const categories = [
-    { id: "formato", label: "Formatos", active: true }, // Cambiado a 'formato' para coincidir con el backend
+    { id: "formato", label: "todo", active: true },
+    { id: "formato", label: "Formatos" }, // Cambiado a 'formato' para coincidir con el backend
     { id: "jurisprudencia", label: "Jurisprudencias" }, // Cambiado a 'jurisprudencia'
     { id: "plantilla", label: "Plantillas" }, // Cambiado a 'plantilla'
     { id: "documento", label: "Documentos" }, // Cambiado a 'documento'
@@ -36,7 +43,7 @@ export default function OtrosDashboard() {
     setLoadingOtros(true)
     setErrorOtros(null)
     try {
-      const response = await fetch("http://localhost:8000/others") // Tu endpoint para listar "Otros"
+      const response = await fetch(`${BACKEND_URL}/others`) // Tu endpoint para listar "Otros"
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }

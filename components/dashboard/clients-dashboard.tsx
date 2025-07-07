@@ -38,6 +38,12 @@ interface CaseFile {
   }>;
 }
 
+// En OtrosDashboard.tsx o donde hagas la llamada a la API
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+// Luego, en tu fetch:
+// const response = await fetch(`${BACKEND_URL}/others`);
+
 export default function ClientsDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState("todos")
@@ -64,7 +70,7 @@ export default function ClientsDashboard() {
     setLoadingClients(true)
     setErrorClients(null)
     try {
-      const response = await fetch("http://localhost:8000/clientes") // Tu endpoint para listar clientes
+      const response = await fetch(`${BACKEND_URL}/clientes`) // Tu endpoint para listar clientes
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
@@ -82,7 +88,7 @@ export default function ClientsDashboard() {
   // Función para cargar un expediente específico por su ID (para abrir el detalle)
   const fetchCaseFileById = async (caseId: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/case/${caseId}`);
+      const response = await fetch(`${BACKEND_URL}/case/${caseId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

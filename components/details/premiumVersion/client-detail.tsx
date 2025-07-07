@@ -30,6 +30,12 @@ interface ClientDetailProps {
   onViewCaseDetail: (caseId: string) => void; // Prop para abrir el detalle del expediente
 }
 
+// En OtrosDashboard.tsx o donde hagas la llamada a la API
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+// Luego, en tu fetch:
+// const response = await fetch(`${BACKEND_URL}/others`);
+
 export default function ClientDetail({ client, onClose, onEdit, onViewCaseDetail }: ClientDetailProps) {
   const { setIsFormOpen } = useFormContext()
   const [clientCases, setClientCases] = useState<ClientCase[]>([]);
@@ -51,7 +57,7 @@ export default function ClientDetail({ client, onClose, onEdit, onViewCaseDetail
       setLoadingClientCases(true);
       setErrorClientCases(null);
       try {
-        const response = await fetch(`http://localhost:8000/cases/client/${client.id}`);
+        const response = await fetch(`${BACKEND_URL}/cases/client/${client.id}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

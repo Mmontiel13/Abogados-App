@@ -46,6 +46,12 @@ const GOOGLE_DRIVE_VIEW_BASE_URL = "https://drive.google.com/file/d/"
 const GOOGLE_DRIVE_DOWNLOAD_BASE_URL = "https://drive.google.com/uc?id="
 const GOOGLE_DRIVE_FOLDER_BASE_URL = "https://drive.google.com/drive/folders/"
 
+// En OtrosDashboard.tsx o donde hagas la llamada a la API
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+// Luego, en tu fetch:
+// const response = await fetch(`${BACKEND_URL}/others`);
+
 export default function CaseFileDetail({ caseFile, onClose, onEdit }: CaseFileDetailProps) {
   const { setIsFormOpen } = useFormContext()
 
@@ -92,7 +98,7 @@ export default function CaseFileDetail({ caseFile, onClose, onEdit }: CaseFileDe
       setLoadingDriveDocuments(true);
       setErrorDriveDocuments(null);
       try {
-        const response = await fetch(`http://localhost:8000/case/${caseFile.id}/documents`);
+        const response = await fetch(`${BACKEND_URL}/case/${caseFile.id}/documents`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -23,13 +23,17 @@ export default function LoginPage() {
   const [isRegistering, setIsRegistering] = useState(false)
   const router = useRouter() // Si estás usando Next.js en tu proyecto local, puedes descomentar esto.
 
+  // En OtrosDashboard.tsx o donde hagas la llamada a la API
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setErrorMessage("") // Limpiar cualquier mensaje de error previo
 
     try {
-      const response = await fetch("http://localhost:8000/login", { // Ajusta la URL de tu API
+      // const response = await fetch("http://localhost:8000/login", { // Ajusta la URL de tu API
+      const response = await fetch(`${BACKEND_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,7 +46,7 @@ export default function LoginPage() {
       if (response.ok) {
         // Login exitoso
         console.log("Inicio de sesión exitoso:", data.user)
-        localStorage.setItem('loggedInUser', JSON.stringify(data.user)); 
+        localStorage.setItem('loggedInUser', JSON.stringify(data.user));
         // alert("Inicio de sesión exitoso. Redirigiendo al dashboard (simulado).") // Para demostración si no usas Next.js router
         // Si estás en un entorno Next.js real, puedes descomentar y usar router.push("/dashboard")
         router.push("/dashboard")
@@ -65,7 +69,7 @@ export default function LoginPage() {
     setSuccessMessage("")
 
     try {
-      const response = await fetch("http://localhost:8000/usuario", { // Endpoint para registrar usuarios
+      const response = await fetch(`${BACKEND_URL}/usuario`, { // Endpoint para registrar usuarios
         method: "POST",
         headers: {
           "Content-Type": "application/json",

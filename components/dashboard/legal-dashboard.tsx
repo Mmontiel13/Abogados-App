@@ -10,6 +10,12 @@ import CaseFileDetail from "../details/case-file-detail"
 import { FormProvider } from "../forms/form-provider"
 import CaseFileForm from "../forms/case-file-form"
 
+// En OtrosDashboard.tsx o donde hagas la llamada a la API
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+// Luego, en tu fetch:
+// const response = await fetch(`${BACKEND_URL}/others`);
+
 export default function LegalDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState("recientes")
@@ -36,7 +42,7 @@ export default function LegalDashboard() {
     setLoadingCases(true)
     setErrorCases(null)
     try {
-      const response = await fetch("http://localhost:8000/cases") // Endpoint para obtener todos los expedientes
+      const response = await fetch(`${BACKEND_URL}/cases`) // Endpoint para obtener todos los expedientes
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }

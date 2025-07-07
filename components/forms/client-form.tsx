@@ -26,7 +26,11 @@ interface ClientFormProps {
   }
 }
 
+// En OtrosDashboard.tsx o donde hagas la llamada a la API
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+// Luego, en tu fetch:
+// const response = await fetch(`${BACKEND_URL}/others`);
 
 export default function ClientForm({ onClose, onSubmit, initialData }: ClientFormProps) {
   const { setIsFormOpen } = useFormContext()
@@ -72,7 +76,7 @@ export default function ClientForm({ onClose, onSubmit, initialData }: ClientFor
     setSuccessMessage(null);
 
     const isEditing = !!initialData;
-    const url = isEditing ? `http://localhost:8000/cliente/${initialData.id}` : "http://localhost:8000/cliente";
+    const url = isEditing ? `${BACKEND_URL}/cliente/${initialData.id}` : `${BACKEND_URL}/cliente`;
     const method = "POST"; // Siempre POST para enviar FormData con _method=PUT
 
     // Validaciones básicas de los campos simplificados

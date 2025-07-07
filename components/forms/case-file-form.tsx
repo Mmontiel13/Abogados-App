@@ -26,6 +26,12 @@ interface Client {
   name: string;
 }
 
+// En OtrosDashboard.tsx o donde hagas la llamada a la API
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+// Luego, en tu fetch:
+// const response = await fetch(`${BACKEND_URL}/others`);
+
 export default function CaseFileForm({ onClose, onSubmit, initialData }: CaseFileFormProps) {
   const { setIsFormOpen } = useFormContext();
   const [date, setDate] = useState<Date | undefined>(
@@ -87,7 +93,7 @@ export default function CaseFileForm({ onClose, onSubmit, initialData }: CaseFil
       setLoadingClients(true);
       setErrorClients(null);
       try {
-        const response = await fetch("http://localhost:8000/clientes");
+        const response = await fetch(`${BACKEND_URL}/clientes`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -110,7 +116,7 @@ export default function CaseFileForm({ onClose, onSubmit, initialData }: CaseFil
     setSuccessMessage(null);
 
     const isEditing = !!initialData;
-    const url = isEditing ? `http://localhost:8000/case/${initialData.id}` : "http://localhost:8000/case";
+    const url = isEditing ? `${BACKEND_URL}/case/${initialData.id}` : `${BACKEND_URL}/case`;
     const method = "POST";
 
     // Validaciones básicas antes de enviar
