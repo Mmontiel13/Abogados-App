@@ -7,8 +7,8 @@ import AuthWrapper from "@/components/auth/authWrapper"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Legal Management System",
-  description: "Professional legal case management platform",
+  title: "Calva Corro System",
+  description: "Sistema de administración de expedientes",
 }
 
 export default function RootLayout({

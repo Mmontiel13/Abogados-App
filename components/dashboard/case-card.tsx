@@ -34,14 +34,14 @@ export default function CaseCard({ caseFile, onClick }: CaseCardProps) {
     >
       <div className="bg-gradient-to-r from-blue-50 to-gray-50 p-2 sm:p-3 border-b border-gray-100">
         <div className="text-center">
-          <div className="text-base sm:text-lg font-bold text-blue-800">{caseFile.id}</div>
+          <div className="text-base sm:text-lg font-bold text-blue-800">{caseFile.tittle}</div>
         </div>
       </div>
       <CardContent className="p-3 sm:p-4">
         <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
           <div>
-            <div className="text-xs text-gray-500 mb-1">Nombre o Título</div>
-            <div className="font-medium text-gray-900 line-clamp-2">{caseFile.title}</div>
+            <div className="text-xs text-gray-500 mb-1">ID del Expediente</div>
+            <div className="font-medium text-gray-900 line-clamp-2">{caseFile.id}</div>
           </div>
 
           <div className="flex items-center gap-2">
