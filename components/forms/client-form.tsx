@@ -90,7 +90,7 @@ export default function ClientForm({ onClose, onSubmit, initialData }: ClientFor
     payload.append('name', formData.name);
     payload.append('email', formData.email);
     payload.append('phone', formData.phone);
-    payload.append('dateAdded', format(date, "yyyy-MM-dd")); // Formato consistente con el backend
+    payload.append('dateAdded', format(date!, "yyyy-MM-dd")); // Formato consistente con el backend
 
     // Asegurarse de enviar el ID para la edición si está presente
     if (isEditing && initialData.id) {
