@@ -34,7 +34,7 @@ export default function CaseCard({ caseFile, onClick }: CaseCardProps) {
     >
       <div className="bg-gradient-to-r from-blue-50 to-gray-50 p-2 sm:p-3 border-b border-gray-100">
         <div className="text-center">
-          <div className="text-base sm:text-lg font-bold text-blue-800">{caseFile.tittle}</div>
+          <div className="text-base sm:text-lg font-bold text-blue-800">{caseFile.title}</div>
         </div>
       </div>
       <CardContent className="p-3 sm:p-4">
