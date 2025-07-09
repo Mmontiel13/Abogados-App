@@ -29,7 +29,7 @@ interface ClientDetailProps {
   onViewCaseDetail: (caseId: string) => void; // Prop para abrir el detalle del expediente
 }
 // En OtrosDashboard.tsx o donde hagas la llamada a la API
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend-production.up.railway.app";
 
 // Luego, en tu fetch:
 // const response = await fetch(`${BACKEND_URL}/others`);

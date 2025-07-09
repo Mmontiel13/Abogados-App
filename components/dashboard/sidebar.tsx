@@ -38,7 +38,7 @@ interface SidebarProps {
 }
 
 // En OtrosDashboard.tsx o donde hagas la llamada a la API
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend-production.up.railway.app";
 
 // Luego, en tu fetch:
 // const response = await fetch(`${BACKEND_URL}/others`);
@@ -68,6 +68,8 @@ export default function Sidebar({ isMobile = false, className = "" }: SidebarPro
     setErrorUsers(null)
     try {
       const response = await fetch(`${BACKEND_URL}/usuarios`) // Endpoint para obtener todos los usuarios
+      // const response = await fetch("https://e0719e8a33c8.ngrok-free.app/usuarios")
+      // const response = await fetch("http://localhost:8000/usuarios")
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }

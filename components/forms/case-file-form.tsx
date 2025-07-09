@@ -27,7 +27,7 @@ interface Client {
 }
 
 // En OtrosDashboard.tsx o donde hagas la llamada a la API
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend-production.up.railway.app";
 
 // Luego, en tu fetch:
 // const response = await fetch(`${BACKEND_URL}/others`);
@@ -85,7 +85,11 @@ export default function CaseFileForm({ onClose, onSubmit, initialData }: CaseFil
   }, [initialData]);
 
   const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field === "court") {
+      setFormData((prev) => ({ ...prev, [field]: value.toUpperCase() }));
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   useEffect(() => {
@@ -121,14 +125,14 @@ export default function CaseFileForm({ onClose, onSubmit, initialData }: CaseFil
 
     // Validaciones básicas antes de enviar
     // MODIFICADO: Ahora verifica si clientId es "none"
-    if (!formData.title || !formData.subject || formData.clientId === "none" || !date || !formData.place || !formData.court) {
+    if (!formData.title || !formData.subject || formData.clientId === "none" || !date || !formData.place || !formData.court.trim()) {
       let missingFields = [];
       if (!formData.title) missingFields.push('Título');
       if (!formData.subject) missingFields.push('Materia');
       if (formData.clientId === "none") missingFields.push('Cliente');
       if (!date) missingFields.push('Fecha');
       if (!formData.place) missingFields.push('Estado Expediente');
-      if (!formData.court) missingFields.push('Juzgado');
+      if (!formData.court.trim()) missingFields.push('Juzgado');
 
       console.error("Validation Error: Missing fields:", missingFields.join(', '));
       setSubmitError(`Por favor, completa todos los campos obligatorios: ${missingFields.join(', ')}.`);
@@ -356,23 +360,16 @@ export default function CaseFileForm({ onClose, onSubmit, initialData }: CaseFil
               </div>
             </div> {/* End grid */}
 
-            {/* Juzgado */}
+            {/* **MODIFICACIÓN 3: Juzgado - Ahora es un Input de texto** */}
             <div className="space-y-2">
               <Label htmlFor="court">Juzgado</Label>
-              <Select value={formData.court} onValueChange={(value) => handleChange("court", value)}>
-                <SelectTrigger id="court" className="w-full">
-                  <div className="flex items-center">
-                    <span className="mr-2">🏛️</span>
-                    <SelectValue placeholder="Lista de Juzgados" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Juzgado 1° Civil">Juzgado 1° Civil</SelectItem>
-                  <SelectItem value="Juzgado 2° Familiar">Juzgado 2° Familiar</SelectItem>
-                  <SelectItem value="Juzgado 3° Penal">Juzgado 3° Penal</SelectItem>
-                  <SelectItem value="Juzgado 1° Laboral">Juzgado 1° Laboral</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="court"
+                placeholder="Ej. JUZGADO 1° DE DISTRITO EN MATERIA CIVIL"
+                value={formData.court}
+                onChange={(e) => handleChange("court", e.target.value)}
+                required // Asegúrate de que siga siendo obligatorio
+              />
             </div>
 
             {/* Descripción */}

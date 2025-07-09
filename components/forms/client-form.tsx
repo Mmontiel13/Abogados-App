@@ -27,7 +27,7 @@ interface ClientFormProps {
 }
 
 // En OtrosDashboard.tsx o donde hagas la llamada a la API
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend-production.up.railway.app";
 
 // Luego, en tu fetch:
 // const response = await fetch(`${BACKEND_URL}/others`);
@@ -79,9 +79,9 @@ export default function ClientForm({ onClose, onSubmit, initialData }: ClientFor
     const url = isEditing ? `${BACKEND_URL}/cliente/${initialData.id}` : `${BACKEND_URL}/cliente`;
     const method = "POST"; // Siempre POST para enviar FormData con _method=PUT
 
-    // Validaciones básicas de los campos simplificados
-    if (!formData.name || !formData.email || !formData.phone || !date) {
-      setSubmitError("Por favor, completa todos los campos obligatorios (Nombre, Correo, Teléfono, Fecha).");
+    // **MODIFICACIÓN 1: Validación - Solo 'name' es obligatorio**
+    if (!formData.name.trim()) { // Usar .trim() para evitar nombres solo con espacios en blanco
+      setSubmitError("El campo 'Nombre' es requerido.");
       setSubmitting(false);
       return;
     }
@@ -163,32 +163,29 @@ export default function ClientForm({ onClose, onSubmit, initialData }: ClientFor
                   placeholder="Nombre completo"
                   value={formData.name}
                   onChange={(e) => handleChange("name", e.target.value)}
-                  required
                 />
               </div>
 
               {/* Correo */}
               <div className="space-y-2">
-                <Label htmlFor="email">Correo electrónico *</Label>
+                <Label htmlFor="email">Correo electrónico</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="correo@ejemplo.com"
                   value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
-                  required
                 />
               </div>
 
               {/* Número de teléfono */}
               <div className="space-y-2">
-                <Label htmlFor="phone">Número de teléfono *</Label>
+                <Label htmlFor="phone">Número de teléfono</Label>
                 <Input
                   id="phone"
                   placeholder="+52 123 456 7890"
                   value={formData.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
-                  required
                 />
               </div>
 

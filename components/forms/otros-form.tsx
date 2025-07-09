@@ -32,11 +32,7 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
     description: initialData?.description || "",
     author: initialData?.author || "",
     tags: initialData?.tags?.join(", ") || "",
-    source: initialData?.source || "",
-    jurisdiction: initialData?.jurisdiction || "",
-    court: initialData?.court || "",
-    caseNumber: initialData?.caseNumber || "",
-    year: initialData?.year || "",
+    // Eliminados: source, jurisdiction, court, caseNumber, year
     notes: initialData?.notes || "",
   })
 
@@ -49,6 +45,7 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
 
+  // ...
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -57,11 +54,7 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
         description: initialData.description || "",
         author: initialData.author || "",
         tags: initialData.tags?.join(", ") || "",
-        source: initialData.source || "",
-        jurisdiction: initialData.jurisdiction || "",
-        court: initialData.court || "",
-        caseNumber: initialData.caseNumber || "",
-        year: initialData.year || "",
+        // Eliminados: source, jurisdiction, court, caseNumber, year
         notes: initialData.notes || "",
       });
       setDate(initialData.dateAdded ? new Date(initialData.dateAdded) : undefined);
@@ -72,24 +65,19 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
         description: "",
         author: "",
         tags: "",
-        source: "",
-        jurisdiction: "",
-        court: "",
-        caseNumber: "",
-        year: "",
+        // Eliminados: source, jurisdiction, court, caseNumber, year
         notes: "",
       });
       setDate(new Date());
     }
   }, [initialData]);
-
-
+  
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   // En OtrosDashboard.tsx o donde hagas la llamada a la API
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend-production.up.railway.app";
 
   // Luego, en tu fetch:
   // const response = await fetch(`${BACKEND_URL}/others`);
@@ -118,18 +106,14 @@ export default function OtrosForm({ onClose, onSubmit, initialData }: OtrosFormP
     }
 
     const payload = new FormData();
-    payload.append('title', formData.title);
-    payload.append('type', formData.type);
-    payload.append('description', formData.description);
-    payload.append('author', formData.author);
-    payload.append('tags', formData.tags); // Las tags se envían como string separado por comas
-    payload.append('source', formData.source);
-    payload.append('jurisdiction', formData.jurisdiction);
-    payload.append('court', formData.court);
-    payload.append('caseNumber', formData.caseNumber);
-    payload.append('year', formData.year);
-    payload.append('notes', formData.notes);
-    payload.append('date', format(date!, "yyyy-MM-dd")); // Usar 'date' para el backend
+    payload.append('title', formData.title);
+    payload.append('type', formData.type);
+    payload.append('description', formData.description);
+    payload.append('author', formData.author);
+    payload.append('tags', formData.tags);
+    // Eliminados: source, jurisdiction, court, caseNumber, year
+    payload.append('notes', formData.notes);
+    payload.append('date', format(date!, "yyyy-MM-dd"));
 
     // No se adjuntan archivos al payload aquí
     if (isEditing) {
