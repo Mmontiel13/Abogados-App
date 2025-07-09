@@ -122,7 +122,7 @@ export default function LoginPage() {
 
         <div className="absolute bottom-8 left-8 text-white">
           <h2 className="text-2xl font-bold mb-2">Calva Corro Abogados</h2>
-          <p className="text-lg opacity-90">NADA POR LA FUERZA TODO POR LA RAZÓN Y EL DERECHO</p>
+          <p className="text-lg opacity-90">NADA POR LA FUERZA, TODO POR EL DERECHO Y LA RAZÓN</p>
         </div>
       </div>
 
