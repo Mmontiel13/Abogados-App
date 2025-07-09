@@ -30,13 +30,12 @@ export default function LegalDashboard() {
 
   const categories = [
     { id: "recientes", label: "Expedientes Recientes", active: true },
-    { id: "familiar", label: "Familiar" },
-    { id: "civil", label: "Civil" },
-    { id: "penal", label: "Penal" },
-    { id: "laboral", label: "Laboral" },
-    { id: "mercantil", label: "Mercantil" },
+    { id: "Derecho Familiar", label: "Familiar" },
+    { id: "Derecho Civil", label: "Civil" },
+    { id: "Derecho Penal", label: "Penal" },
+    { id: "Derecho Laboral", label: "Laboral" },
+    { id: "Derecho Mercantil", label: "Mercantil" },
   ]
-
   const fetchCaseFiles = async () => {
     setLoadingCases(true)
     setErrorCases(null)
