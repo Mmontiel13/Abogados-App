@@ -42,16 +42,16 @@ export default function OtrosCard({ item, onClick }: OtrosCardProps) {
     >
       <div className="bg-gradient-to-r from-blue-50 to-gray-50 p-2 sm:p-3 border-b border-gray-100">
         <div className="text-center">
-          <div className="text-base sm:text-lg font-bold text-blue-800">Documento</div>
+          <div className="text-base sm:text-lg font-bold text-blue-800">{item.title}</div>
         </div>
       </div>
       <CardContent className="p-3 sm:p-4">
         <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
           <div>
-            <div className="text-xs text-gray-500 mb-1">Título del Documento</div>
+            <div className="text-xs text-gray-500 mb-1">ID del Documento</div>
             <div className="font-medium text-gray-900 line-clamp-2 flex items-center gap-2">
               <FileText className="h-3 w-3 text-gray-400" />
-              {item.title}
+              {item.id}
             </div>
           </div>
 

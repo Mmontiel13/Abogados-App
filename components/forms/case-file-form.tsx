@@ -362,7 +362,7 @@ export default function CaseFileForm({ onClose, onSubmit, initialData }: CaseFil
 
             {/* **MODIFICACIÓN 3: Juzgado - Ahora es un Input de texto** */}
             <div className="space-y-2">
-              <Label htmlFor="court">Juzgado</Label>
+              <Label htmlFor="court">Dependencia</Label>
               <Input
                 id="court"
                 placeholder="Ej. JUZGADO 1° DE DISTRITO EN MATERIA CIVIL"

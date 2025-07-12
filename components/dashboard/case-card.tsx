@@ -65,7 +65,7 @@ export default function CaseCard({ caseFile, onClick }: CaseCardProps) {
           </div>
 
           <div>
-            <div className="text-xs text-gray-500 mb-1">Juzgado</div>
+            <div className="text-xs text-gray-500 mb-1">Dependencia</div>
             <div className="text-gray-700 line-clamp-1">{caseFile.court}</div>
           </div>
         </div>
