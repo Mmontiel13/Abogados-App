@@ -35,6 +35,7 @@ export default function LegalDashboard() {
     { id: "Derecho Penal", label: "Penal" },
     { id: "Derecho Laboral", label: "Laboral" },
     { id: "Derecho Mercantil", label: "Mercantil" },
+    { id: "Administrativo", label: "Administrativo" },
   ]
   const fetchCaseFiles = async () => {
     setLoadingCases(true)

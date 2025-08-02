@@ -251,6 +251,7 @@ export default function CaseFileForm({ onClose, onSubmit, initialData }: CaseFil
                     <SelectItem value="Derecho Familiar">Derecho Familiar</SelectItem>
                     <SelectItem value="Derecho Mercantil">Derecho Mercantil</SelectItem>
                     <SelectItem value="Derecho Laboral">Derecho Laboral</SelectItem>
+                    <SelectItem value="Administrativo">Administrativo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
