@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 // Asumo que estos componentes existen en tu proyecto
 import Sidebar from "./sidebar";
-import Navigation from "./navigation";
 import { FormProvider } from "../forms/form-provider";
 
 // Importaciones de Shadcn/ui
@@ -630,7 +629,6 @@ export default function BlogDashboard() {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col md:ml-64">
-          <Navigation title="Gestión de Blog y Discusión" />
 
           {/* Selector y Botón Nuevo */}
           <div className="flex items-center justify-between p-6 border-b bg-white shadow-sm sticky top-0 z-10">
