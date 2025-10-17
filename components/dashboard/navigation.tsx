@@ -162,7 +162,7 @@ export default function Navigation({
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-300 w-4 h-4" />
                 <Input
                   placeholder="Ingrese un termino..."
-                  className="pl-10 bg-blue-700 border-blue-600 text-white placeholder-blue-300 w-48 lg:w-64 focus:w-64 lg:focus:w-80 transition-all"
+                  className="pl-10 bg-white border-white text-white placeholder-blue-300 w-48 lg:w-64 focus:w-64 lg:focus:w-80 transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />

@@ -20,7 +20,9 @@ import {
   FileText,
   Users,
   FolderOpen,
+  FileCog,
 } from "lucide-react"
+import './src/global.css'
 
 // Definir una interfaz para el usuario (similar a cómo viene de tu backend)
 interface User {
@@ -38,7 +40,7 @@ interface SidebarProps {
 }
 
 // En OtrosDashboard.tsx o donde hagas la llamada a la API
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend-production.up.railway.app";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend2.up.railway.app";
 
 // Luego, en tu fetch:
 // const response = await fetch(`${BACKEND_URL}/others`);
@@ -118,13 +120,18 @@ export default function Sidebar({ isMobile = false, className = "" }: SidebarPro
       icon: FolderOpen,
       path: "/dashboard/otros",
     },
+    {
+      id: "blog",
+      label: "Administrar Blog",
+      icon: FileCog,
+      path: "/dashboard/blog",
+    },
   ]
 
   return (
     <div
-      className={`bg-gradient-to-b from-blue-900 to-blue-800 text-white ${
-        isMobile ? "h-full" : "fixed left-0 top-0 h-full w-64 hidden md:block"
-      } ${className}`}
+      className={`bg-gradient-to-b from-blue-900 to-blue-800 text-white ${isMobile ? "h-full" : "fixed left-0 top-0 h-full w-64 hidden md:block"
+        } ${className}`}
     >
       {/* Logo and User Profile */}
       <div className="p-4 border-b border-blue-700/50">
@@ -166,9 +173,8 @@ export default function Sidebar({ isMobile = false, className = "" }: SidebarPro
                 <button
                   key={item.id}
                   onClick={() => router.push(item.path)}
-                  className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors w-full text-left ${
-                    isActive ? "bg-blue-700/50" : "hover:bg-blue-700/30"
-                  }`}
+                  className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors w-full text-left ${isActive ? "bg-blue-700/50" : "hover:bg-blue-700/30"
+                    }`}
                 >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
@@ -180,7 +186,9 @@ export default function Sidebar({ isMobile = false, className = "" }: SidebarPro
           {/* Team Section */}
           <div className="mt-8">
             <div className="text-sm font-medium text-blue-200 mb-3 px-2.5">Equipo</div>
-            <div className="space-y-1">
+
+            {/* Contenedor con scroll */}
+            <div className="space-y-1 max-h-64 overflow-y-auto pr-1 scrollbar-none">
               {teamMembers.map((member) => (
                 <Popover key={member.id}>
                   <PopoverTrigger asChild>
@@ -222,6 +230,7 @@ export default function Sidebar({ isMobile = false, className = "" }: SidebarPro
               ))}
             </div>
           </div>
+
         </div>
       </nav>
     </div>

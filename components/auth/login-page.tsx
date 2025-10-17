@@ -24,7 +24,7 @@ export default function LoginPage() {
   const router = useRouter() // Si estás usando Next.js en tu proyecto local, puedes descomentar esto.
 
   // En OtrosDashboard.tsx o donde hagas la llamada a la API
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend-production.up.railway.app";
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend2.up.railway.app";
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

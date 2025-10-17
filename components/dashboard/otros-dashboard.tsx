@@ -10,7 +10,7 @@ import { FormProvider } from "../forms/form-provider"
 import OtrosForm from "../forms/otros-form"
 
 // En OtrosDashboard.tsx o donde hagas la llamada a la API
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend-production.up.railway.app";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://abogados-app-backend2.up.railway.app";
 
 // Luego, en tu fetch:
 // const response = await fetch(`${BACKEND_URL}/others`);
@@ -28,7 +28,7 @@ export default function OtrosDashboard() {
   const [errorOtros, setErrorOtros] = useState<string | null>(null)
 
   const categories = [
-    { id: "formato", label: "todo", active: true },
+    { id: "todo", label: "todo", active: true },
     { id: "formato", label: "Formatos" }, // Cambiado a 'formato' para coincidir con el backend
     { id: "jurisprudencia", label: "Jurisprudencias" }, // Cambiado a 'jurisprudencia'
     { id: "plantilla", label: "Plantillas" }, // Cambiado a 'plantilla'
