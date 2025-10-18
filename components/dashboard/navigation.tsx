@@ -159,10 +159,10 @@ export default function Navigation({
             <h1 className="text-xl font-semibold">Búsqueda</h1>
             <div className="flex items-center gap-3 flex-wrap">
               <div className="relative min-w-0">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-300 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-800 w-4 h-4" />
                 <Input
                   placeholder="Ingrese un termino..."
-                  className="pl-10 bg-white border-white text-white placeholder-blue-300 w-48 lg:w-64 focus:w-64 lg:focus:w-80 transition-all"
+                  className="pl-10 bg-white border-white text-blue-800 placeholder-blue-300 w-48 lg:w-64 focus:w-64 lg:focus:w-80 transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
